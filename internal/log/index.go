@@ -83,3 +83,17 @@ func (i *index) Read(in int64) (out uint32, pos uint64, err error) {
 
 	return out, pos, nil
 }
+
+func (i *index) Write(off uint32, pos uint64) error {
+	if uint64(len(i.mmap)) < i.size+entWidth {
+		return io.EOF
+	}
+	enc.PutUint32(i.mmap[i.size:i.size+offWidth], off)
+	enc.PutUint64(i.mmap[i.size+offWidth:i.size+entWidth], pos)
+	i.size += uint64(entWidth)
+	return nil
+}
+
+func (i *index) Name() string {
+	return i.file.Name()
+}
